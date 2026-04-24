@@ -1,1 +1,715 @@
 # mis432-uber-forecasting
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Uber Demand Forecasting · MIS 432 · WWU</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+:root{
+  --black:#000;
+  --ink:#080808;
+  --surface:#0e0e0e;
+  --card:#131313;
+  --border:#1c1c1c;
+  --mid:#2b2b2b;
+  --cyan:#1fbad6;
+  --cyan2:#17a0ba;
+  --cglow:rgba(31,186,214,.13);
+  --white:#fff;
+  --offwhite:#e8e8e8;
+  --gray:#666;
+  --lightgray:#999;
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Bebas Neue',sans-serif;
+  --body:'DM Sans',sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);
+  color:var(--offwhite);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.8;
+  font-weight:300;
+  overflow-x:hidden;
+}
+::selection{background:var(--cyan);color:var(--black)}
+
+/* ── SCAN-LINE TEXTURE ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,.08) 2px,
+    rgba(0,0,0,.08) 4px
+  );
+  pointer-events:none;
+  z-index:999;
+  opacity:.4;
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(0,0,0,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(1rem,4vw,3.5rem);
+  height:52px;
+}
+.nav-id{
+  font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gray);
+}
+.nav-id b{color:var(--cyan);font-weight:500}
+.nav-links{display:flex;gap:1.6rem;list-style:none}
+.nav-links a{
+  font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gray);text-decoration:none;transition:color .18s;
+}
+.nav-links a:hover{color:var(--cyan)}
+@media(max-width:640px){.nav-links{display:none}}
+
+/* ── HERO ── */
+.hero{
+  position:relative;
+  min-height:96vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(2rem,6vw,5rem) clamp(1.5rem,6vw,5rem);
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(31,186,214,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 10% 80%, rgba(31,186,214,.04) 0%, transparent 60%);
+}
+/* dot grid */
+.hero-bg::after{
+  content:'';
+  position:absolute;inset:0;
+  background-image:radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size:28px 28px;
+}
+.hero-ticker{
+  font-family:var(--mono);font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--cyan);
+  margin-bottom:2rem;position:relative;
+  display:flex;align-items:center;gap:.8rem;
+}
+.hero-ticker::before{
+  content:'';display:block;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);
+  animation:blink 1.1s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(3.8rem,11vw,10rem);
+  line-height:.92;letter-spacing:.01em;
+  color:var(--white);
+  position:relative;
+  margin-bottom:1.8rem;
+  max-width:18ch;
+}
+.hero h1 .accent{
+  -webkit-text-stroke:2px var(--cyan);
+  color:transparent;
+}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:2rem;
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gray);
+  position:relative;
+}
+.hero-meta span{border-left:2px solid var(--border);padding-left:.8rem}
+
+/* ── ANIMATIONS ── */
+@keyframes riseIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero-ticker{animation:riseIn .6s ease both}
+.hero h1{animation:riseIn .7s .12s ease both}
+.hero-meta{animation:riseIn .7s .26s ease both}
+
+/* ── WRAPPER ── */
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem)}
+
+/* ── SECTION ── */
+section{padding:5.5rem 0;border-top:1px solid var(--border)}
+.sec-tag{
+  font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);
+  display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;
+}
+.sec-tag::before{content:'//'}
+h2{
+  font-family:var(--display);
+  font-size:clamp(2rem,5vw,3.8rem);
+  line-height:1;letter-spacing:.02em;
+  color:var(--white);margin-bottom:2rem;
+}
+.prose{
+  max-width:68ch;color:var(--offwhite);
+  font-size:15.5px;line-height:1.9;font-weight:300;
+}
+.prose+.prose{margin-top:1.1rem}
+.prose strong{color:var(--white);font-weight:500}
+.rule{width:36px;height:2px;background:var(--cyan);margin:2rem 0}
+
+/* ── STAT STRIP ── */
+.stat-strip{
+  display:flex;flex-wrap:wrap;gap:1px;
+  border:1px solid var(--border);border-radius:4px;
+  overflow:hidden;margin:2.5rem 0;
+}
+.stat{
+  flex:1;min-width:140px;
+  background:var(--card);
+  padding:1.4rem 1.6rem;
+  border-right:1px solid var(--border);
+  position:relative;
+}
+.stat:last-child{border-right:none}
+.stat::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:var(--cyan);
+}
+.stat-val{
+  font-family:var(--display);
+  font-size:2.4rem;color:var(--cyan);
+  line-height:1;margin-bottom:.3rem;
+}
+.stat-lbl{
+  font-family:var(--mono);font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gray);
+}
+
+/* ── CHART AREA ── */
+.chart-shell{
+  border:1px solid var(--border);border-radius:4px;
+  background:var(--card);
+  overflow:hidden;margin:2rem 0;
+}
+.chart-header{
+  border-bottom:1px solid var(--border);
+  padding:.6rem 1.2rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.chart-dot{width:10px;height:10px;border-radius:50%}
+.chart-body{
+  padding:0;
+  min-height:300px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.chart-body img{width:100%;display:block;border-radius:0 0 4px 4px}
+/* placeholder state — remove the .chart-placeholder div once you add your img */
+.chart-placeholder{
+  display:flex;flex-direction:column;align-items:center;gap:.8rem;
+  padding:3rem;text-align:center;
+}
+.chart-placeholder svg{opacity:.2}
+.chart-placeholder p{
+  font-family:var(--mono);font-size:11px;color:var(--gray);
+  max-width:40ch;line-height:1.7;
+}
+.chart-caption{
+  padding:.9rem 1.2rem;
+  font-family:var(--mono);font-size:11px;
+  color:var(--lightgray);line-height:1.7;
+  border-top:1px solid var(--border);
+}
+
+/* ── MEMO ── */
+.memo-shell{
+  border:1px solid var(--border);border-radius:4px;
+  overflow:hidden;margin:2rem 0;
+  background:var(--card);
+}
+.memo-bar{
+  background:var(--cyan);
+  padding:7px 1.4rem;
+  font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--black);font-weight:600;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.memo-bar span{opacity:.6;font-size:9px}
+.memo-body{
+  padding:2rem 2rem 2rem;
+  font-family:var(--mono);font-size:12.5px;
+  color:var(--offwhite);line-height:1.85;
+  white-space:pre-wrap;word-break:break-word;
+}
+/* highlight key verdict */
+.surge-yes{color:var(--cyan);font-weight:600}
+
+/* ── DATA TABLE ── */
+.data-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);border-radius:4px;
+  overflow:hidden;margin:2rem 0;
+}
+.data-panel{background:var(--card);padding:1.6rem}
+.data-panel h4{
+  font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:1rem;
+  padding-bottom:.6rem;border-bottom:1px solid var(--border);
+}
+.data-table{width:100%;border-collapse:collapse}
+.data-table td{
+  font-family:var(--mono);font-size:11.5px;
+  padding:.28rem 0;color:var(--offwhite);
+}
+.data-table td:last-child{text-align:right;color:var(--lightgray)}
+.data-table tr:hover td{color:var(--cyan)}
+.stats-panel{
+  background:var(--card);padding:1.6rem;
+  grid-column:1/-1;
+  border-top:1px solid var(--border);
+  display:flex;flex-wrap:wrap;gap:2rem;
+}
+.stat-item{flex:1;min-width:160px}
+.stat-item .k{
+  font-family:var(--mono);font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gray);
+  margin-bottom:.3rem;
+}
+.stat-item .v{
+  font-family:var(--display);font-size:1.9rem;color:var(--white);
+}
+.stat-item .v.peak{font-size:1.2rem;color:var(--cyan)}
+@media(max-width:580px){.data-grid{grid-template-columns:1fr}}
+
+/* ── CALLOUT ── */
+.callout{
+  border-left:3px solid var(--cyan);
+  background:var(--cglow);
+  padding:1.2rem 1.4rem;
+  border-radius:0 4px 4px 0;
+  margin:2rem 0;max-width:68ch;
+}
+.callout p{font-size:14.5px;line-height:1.85;color:var(--offwhite)}
+.callout strong{color:var(--cyan);font-weight:500}
+
+/* ── REFLECTION ── */
+.reflection{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:2.5rem 2.2rem;
+  margin:2rem 0;
+  max-width:72ch;
+  position:relative;
+}
+.reflection::before{
+  content:'"';
+  font-family:var(--display);
+  font-size:6rem;
+  color:var(--cyan);
+  opacity:.15;
+  position:absolute;
+  top:-1rem;left:1.2rem;
+  line-height:1;
+}
+.reflection p{
+  font-size:15.5px;line-height:1.9;
+  color:var(--offwhite);margin-bottom:1.1rem;
+}
+.reflection p:last-child{margin-bottom:0}
+.reflection strong{color:var(--white);font-weight:500}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:2.5rem clamp(1.5rem,5vw,4rem);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:1rem;
+}
+footer p{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--gray)}
+footer a{color:var(--cyan);text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-id"><b>MIS 432</b> · AI in Business · Western Washington University</span>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#model">Model</a></li>
+    <li><a href="#concert">Concert</a></li>
+    <li><a href="#stress">Stress Test</a></li>
+    <li><a href="#algorithm">Algorithm</a></li>
+    <li><a href="#drift">Drift</a></li>
+    <li><a href="#analysis">Analysis</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <p class="hero-ticker">Live forecast · Bellingham, WA · Friday night</p>
+  <h1>How Uber Knows You Need a Ride <span class="accent">Before</span> You Do</h1>
+  <div class="hero-meta">
+    <span>MIS 432 · AI in Business</span>
+    <span>Western Washington University</span>
+    <span>Demand Forecasting Lab</span>
+    <span>Bellingham, WA</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════
+     S1 — THE BUSINESS PROBLEM
+══════════════════════════════════════════ -->
+<section id="problem">
+  <p class="sec-tag">01 · The Business Problem</p>
+  <h2>Why Forecasting<br>IS the Business</h2>
+
+  <p class="prose">
+    Uber does not own a single car. What it owns is the ability to guarantee that when you open the app,
+    a driver is nearby within minutes — and that guarantee is only possible because Uber's algorithms are
+    constantly predicting demand <strong>before it happens</strong>. If the model underestimates Friday
+    night demand near a university campus, there aren't enough drivers online, wait times spike, riders
+    switch to Lyft, and drivers lose income — all because a number was wrong. If the model overestimates,
+    surge pricing never fires, drivers flood a quiet area, and Uber loses the margin that funds everything
+    else. Demand forecasting is not a data science side project at Uber: it is the operational core that
+    decides how many drivers earn a living that night, how much every ride costs, and whether the app
+    delivers on its fundamental promise.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="stat-strip">
+    <div class="stat">
+      <div class="stat-val">104</div>
+      <div class="stat-lbl">Weeks of training data</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">4</div>
+      <div class="stat-lbl">Features engineered</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">26</div>
+      <div class="stat-lbl">Weeks backtested</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="font-size:1.5rem;line-height:1.2">Linear<br>Reg.</div>
+      <div class="stat-lbl">Algorithm</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">431</div>
+      <div class="stat-lbl">Concert Friday trips predicted</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S2 — THE DATA AND THE MODEL
+══════════════════════════════════════════ -->
+<section id="model">
+  <p class="sec-tag">02 · The Data &amp; The Model</p>
+  <h2>Two Years of Fridays,<br>One Equation</h2>
+
+  <p class="prose">
+    I simulated two years of historical Friday night Uber trip data near WWU's campus in Bellingham —
+    104 weeks capturing a realistic upward trend as Uber's market matured, summer tourism spikes, a sharp
+    holiday lull in late December, a New Year's Eve outlier, and the consistent bump that occurs every
+    Friday when WWU's student population is on campus. I then engineered four numeric features from the
+    raw dates — <strong>week_num</strong> (capturing trend), <strong>is_summer</strong>,
+    <strong>is_nye</strong>, and <strong>is_school_year</strong> — translating calendar context into
+    the language a regression model can learn from. The model was trained on the first 78 weeks and
+    tested against the final 26 it had never seen, giving an honest, unbiased measure of forecast
+    accuracy before any real prediction was made.
+  </p>
+
+  <!-- CHART — swap the placeholder div for an <img> tag when ready -->
+  <div class="chart-shell">
+    <div class="chart-header">
+      <div class="chart-dot" style="background:#ff5f57"></div>
+      <div class="chart-dot" style="background:#febc2e"></div>
+      <div class="chart-dot" style="background:#28c840"></div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--gray);margin-left:.4rem;letter-spacing:.08em">
+        wwu_uber_backtest.png
+      </span>
+    </div>
+    <div class="chart-body">
+      <!-- img src="wwu_uber_backtest.png" alt="Backtest results chart" style="width:100%;display:block;" -->
+      <div class="chart-placeholder">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1fbad6" stroke-width="1.2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <p>Upload <strong>wwu_uber_backtest.png</strong> to your GitHub repo,<br>
+        then replace this block with an &lt;img&gt; tag.</p>
+      </div>
+    </div>
+    <div class="chart-caption">
+      The model tracked the overall upward trend accurately across most of the test window, 
+      with predictions staying close to actuals during the stable October–November stretch. 
+      The largest divergence appeared around the late-December holiday drop, where the model 
+      slightly underestimated how sharply demand fell — a reminder that even well-fitted models 
+      can miss the steepness of structural breaks at the edges of a season.
+      <br><br>
+      <strong style="color:var(--white)">The dashed line is what the model predicted. The solid line is what actually happened.
+      The gap between them is the model's error — and the honest measure of how much to trust it.</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S3 — THE CONCERT NIGHT PREDICTION
+══════════════════════════════════════════ -->
+<section id="concert">
+  <p class="sec-tag">03 · The Concert Night Prediction</p>
+  <h2>From Equation<br>to Operations Memo</h2>
+
+  <p class="prose">
+    Here is the actual operations recommendation the model produced for the
+    Death Cab for Cutie, Sleater-Kinney, and ODESZA homecoming concert at WWU.
+  </p>
+
+  <div class="memo-shell">
+    <div class="memo-bar">
+      Operations Memo — Uber Bellingham / WWU Area
+      <span>CONFIDENTIAL · DRAFT</span>
+    </div>
+    <div class="memo-body">TO   : Operations Manager
+FROM : Demand Forecasting Analyst
+RE   : Driver Supply &amp; Surge Recommendation — Concert Friday
+DATE : April 23, 2026 (Thursday morning)
+
+EVENT
+─────
+Death Cab for Cutie / Sleater-Kinney / ODESZA homecoming concert
+at WWU. Sold-out show. Expected crowd exits at 10:00 PM Friday.
+
+DEMAND FORECAST
+───────────────
+Predicted Friday night trips (campus area):  431
+Planning range                            :  366 – 496 trips
+Model basis: linear regression trained on 18 months of Friday
+night data; backtested MAE within acceptable operational range.
+
+DRIVER STAFFING RECOMMENDATION
+───────────────────────────────
+Conservative (low demand) :  122 drivers online by 9:45 PM
+Base forecast             :  144 drivers online by 9:45 PM
+Upside (high demand)      :  166 drivers online by 9:45 PM
+
+Recommend targeting 144–166 drivers staged near campus before
+the show ends. Typical Friday baseline is 25 drivers.
+
+<span class="surge-yes">SURGE PRICING: YES ✓
+───────────────────
+Predicted demand (431 trips) requires 144 drivers, exceeding
+the typical Friday supply of 25 — surge pricing is needed to
+attract the additional 119 drivers and moderate demand.</span>
+
+UPSIDE RISK
+───────────
+The model was trained on ordinary school-year Fridays and does
+NOT account for sold-out concert effects. If the show draws fans
+from outside Bellingham, or if the event runs long, demand could
+push 20–30% above the upper bound — consider a contingency driver
+incentive bonus active from 9:45–11:30 PM.
+
+ACTION ITEMS
+────────────
+□ Send driver push notification by 6:00 PM Friday (4 hrs notice)
+□ Pre-position surge multiplier in pricing system by 9:30 PM
+□ Monitor live trip requests at 10:00 PM; escalate if queue > 15
+□ Debrief actual vs. predicted trips Monday for model recalibration</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S4 — STRESS-TESTING THE FORECAST
+══════════════════════════════════════════ -->
+<section id="stress">
+  <p class="sec-tag">04 · Stress-Testing the Forecast</p>
+  <h2>How Fragile Is<br>the Recommendation?</h2>
+
+  <p class="prose">
+    Before sending that memo, I stress-tested the key assumptions to understand how fragile
+    the recommendation was.
+  </p>
+
+  <!-- DATA TABLES -->
+  <div class="data-grid">
+    <div class="data-panel">
+      <h4>First 10 Rows — Earliest Fridays</h4>
+      <table class="data-table">
+        <tr><td>2023-01-06</td><td>328</td></tr>
+        <tr><td>2023-01-13</td><td>321</td></tr>
+        <tr><td>2023-01-20</td><td>332</td></tr>
+        <tr><td>2023-01-27</td><td>344</td></tr>
+        <tr><td>2023-02-03</td><td>324</td></tr>
+        <tr><td>2023-02-10</td><td>325</td></tr>
+        <tr><td>2023-02-17</td><td>348</td></tr>
+        <tr><td>2023-02-24</td><td>339</td></tr>
+        <tr><td>2023-03-03</td><td>325</td></tr>
+        <tr><td>2023-03-10</td><td>339</td></tr>
+      </table>
+    </div>
+    <div class="data-panel">
+      <h4>Last 10 Rows — Most Recent Fridays</h4>
+      <table class="data-table">
+        <tr><td>2024-10-25</td><td>422</td></tr>
+        <tr><td>2024-11-01</td><td>411</td></tr>
+        <tr><td>2024-11-08</td><td>433</td></tr>
+        <tr><td>2024-11-15</td><td>433</td></tr>
+        <tr><td>2024-11-22</td><td>431</td></tr>
+        <tr><td>2024-11-29</td><td>430</td></tr>
+        <tr><td>2024-12-06</td><td>417</td></tr>
+        <tr><td>2024-12-13</td><td>430</td></tr>
+        <tr><td>2024-12-20</td><td>280</td></tr>
+        <tr><td>2024-12-27</td><td>275</td></tr>
+      </table>
+    </div>
+    <div class="stats-panel">
+      <div class="stat-item">
+        <div class="k">Minimum trips</div>
+        <div class="v">243</div>
+      </div>
+      <div class="stat-item">
+        <div class="k">Maximum trips</div>
+        <div class="v">513</div>
+      </div>
+      <div class="stat-item">
+        <div class="k">Average trips</div>
+        <div class="v">371.7</div>
+      </div>
+      <div class="stat-item" style="flex:2">
+        <div class="k">Peak week</div>
+        <div class="v peak">2024-08-30 &mdash; 513 trips</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>
+      <strong>Why analysts stress-test before committing.</strong>
+      A point forecast is a statement about the most likely future; a stress test is a statement
+      about which assumptions have to be wrong before the recommendation changes — the breaking point
+      of the decision, not just the center of it. In practice, an analyst who sends a surge
+      recommendation without knowing how sensitive it is to the trips-per-driver ratio or the
+      baseline driver count is handing a manager a number without a margin, which is the same as
+      handing them a false sense of precision.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S5 — WHEN THE ALGORITHM DECIDES
+══════════════════════════════════════════ -->
+<section id="algorithm">
+  <p class="sec-tag">05 · When the Algorithm Decides</p>
+  <h2>The Prediction–<br>Decision Gap</h2>
+
+  <p class="prose">
+    In the lab, a human analyst reviews the forecast and writes a memo. In production, Uber's pricing
+    engine takes the demand forecast and <strong>automatically sets the surge multiplier with no human
+    in the loop</strong> — the model's output becomes the price on your screen within seconds, at scale,
+    across hundreds of markets simultaneously. When the model is right, this is elegant: supply and
+    demand balance faster than any human dispatcher could manage. When the model is wrong — say, a
+    6.8-magnitude earthquake near campus triggers a mass-evacuation rideshare demand spike the model
+    has never seen — the algorithm may surge prices to 8× during a public emergency, a decision no
+    individual human would sanction, but one that no human was present to prevent.
+  </p>
+
+  <div class="callout">
+    <p>
+      <strong>The core tension:</strong> automation at Uber's scale is only possible because humans are
+      removed from individual decisions. But removing humans from decisions means removing human judgment
+      from the exact moments when the model's training distribution no longer matches the world it is
+      operating in.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S6 — WHEN THE MODEL BREAKS
+══════════════════════════════════════════ -->
+<section id="drift">
+  <p class="sec-tag">06 · When the Model Breaks</p>
+  <h2>Distribution Shift<br>in Bellingham</h2>
+
+  <p class="prose">
+    Six weeks after the concert, something quietly changed: WWU enrollment dropped by eight percent,
+    two large apartment complexes opened in Cordata pulling student density away from campus, and Lyft
+    re-entered the Bellingham market with a driver incentive campaign — and the model had no idea,
+    because none of those events appear anywhere in 104 weeks of Friday night trip counts. The model
+    continued predicting school-year demand at its learned baseline; drivers were dispatched at
+    historical ratios; surge pricing fired on schedule — but actual demand had structurally shifted
+    downward, so <strong>drivers earned less per hour than the incentive had promised</strong>, riders
+    on the Cordata side of town waited longer than expected, and some quietly switched to the competitor
+    app. Nobody received an error message. The model was not broken in the sense that it crashed — it
+    was broken in the sense that the world it was trained on no longer existed, and it had no mechanism
+    to notice.
+  </p>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S7 — MY ANALYSIS
+══════════════════════════════════════════ -->
+<section id="analysis">
+  <p class="sec-tag">07 · My Analysis</p>
+  <h2>What I Actually<br>Think About This</h2>
+
+  <div class="reflection">
+    <p>
+      The chain runs tighter than it looks. Back in Step 1, when I decided to code the school-year
+      effect as a simple 1 or 0 — basically telling the model "school is either in or it's not" —
+      that felt like a reasonable shortcut at the time. But that one choice quietly carried forward
+      into everything else. The model in Step 2 learned what an average school-year Friday looks like
+      using that clean boundary, so the backtest numbers looked pretty good. Then, in Step 3, when I
+      used that same model to predict the concert Friday, it still relied on those same averages —
+      averages that had quietly smoothed over things like enrollment dips, the chaos of move-in week,
+      and how activity on campus slows down right before finals.
+    </p>
+    <p>
+      The stress test in Step 4 showed just how close the call actually was: change one assumption
+      by a small amount, and the surge recommendation flips entirely. And that surge recommendation
+      didn't go to a human for review — it went straight into the pricing engine. So the 1.6×
+      multiplier riders saw on their phones that Friday night, and the repositioning decisions drivers
+      made based on expected pay, all traced back to a binary flag I typed into a Colab notebook.
+    </p>
+    <p>
+      If I were building this for a real Bellingham business, I would add a <strong>drift detector</strong>
+      — something that checks every week whether the incoming trip data still looks like the data the
+      model was trained on, and flags a human the moment it doesn't, because none of the rest of it
+      can be trusted once that stops being true.
+    </p>
+  </div>
+</section>
+
+</div><!-- /.wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <p>MIS 432 · AI in Business · Western Washington University · Bellingham, WA</p>
+  <p>Built with Python · scikit-learn · matplotlib ·
+    <a href="https://github.com/" target="_blank">View on GitHub</a>
+  </p>
+</footer>
+
+</body>
+</html>
