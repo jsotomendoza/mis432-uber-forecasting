@@ -1,6 +1,5 @@
 # mis432-uber-forecasting
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
