@@ -464,7 +464,43 @@ footer a:hover{text-decoration:underline}
              3. Paste this one line in its place:
                 <img src="wwu_uber_backtest.png" alt="Backtest chart" style="width:100%;display:block;">
       ──────────────────────────────────────────────────────────────── -->
-      <img src="wwu_uber_backtest.png" alt="Backtest chart" style="width:100%;display:block;">
+      <div id="chartUploader" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:3rem;text-align:center;">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1fbad6" stroke-width="1.2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--gray);max-width:36ch;line-height:1.7;">
+          Your backtest chart goes here.<br>Click the button to preview it now,<br>
+          or see the comment above for GitHub Pages instructions.
+        </p>
+        <label style="
+          display:inline-flex;align-items:center;gap:.5rem;
+          background:var(--cyan);color:var(--black);
+          font-family:var(--mono);font-size:11px;font-weight:600;
+          letter-spacing:.12em;text-transform:uppercase;
+          padding:.6rem 1.4rem;border-radius:3px;cursor:pointer;
+          transition:opacity .18s;
+        " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Upload chart image
+          <input type="file" accept="image/*" style="display:none;" onchange="
+            var file = this.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              var uploader = document.getElementById('chartUploader');
+              var img = document.createElement('img');
+              img.src = e.target.result;
+              img.alt = 'Backtest chart';
+              img.style.cssText = 'width:100%;display:block;border-radius:0 0 4px 4px;';
+              uploader.parentNode.replaceChild(img, uploader);
+            };
+            reader.readAsDataURL(file);
+          "/>
+        </label>
+      </div>
     </div>
     <div class="chart-caption">
       The model tracked the overall upward trend accurately across most of the test window, 
