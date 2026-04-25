@@ -451,7 +451,15 @@ footer a:hover{text-decoration:underline}
       </span>
     </div>
     <div class="chart-body">
-      <!-- img src="wwu_uber_backtest.png" alt="Backtest results chart" style="width:100%;display:block;" -->
+      <!--
+        ╔══════════════════════════════════════════════════════════╗
+        ║  PASTE YOUR CHART HERE                                   ║
+        ║  Replace this comment block with:                        ║
+        ║  <img src="wwu_uber_backtest.png"                        ║
+        ║       alt="Backtest results chart"                       ║
+        ║       style="width:100%;display:block;">                 ║
+        ╚══════════════════════════════════════════════════════════╝
+      -->
       <div class="chart-placeholder">
         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1fbad6" stroke-width="1.2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
