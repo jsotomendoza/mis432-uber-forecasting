@@ -451,9 +451,7 @@ footer a:hover{text-decoration:underline}
       </span>
     </div>
     <div class="chart-body">
-      <!--
-        <img width="1258" height="453" alt="Screenshot 2026-04-24 at 9 34 15 PM" src="https://github.com/user-attachments/assets/59e935ad-1882-4cc9-ad73-448b7b73a4f2" />
-      -->
+      <!-- [ IMAGE LINK ] -->
       <div class="chart-placeholder">
         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1fbad6" stroke-width="1.2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
