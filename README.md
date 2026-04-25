@@ -451,14 +451,7 @@ footer a:hover{text-decoration:underline}
       </span>
     </div>
     <div class="chart-body">
-      <!-- [ IMAGE LINK ] -->
-      <div class="chart-placeholder">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1fbad6" stroke-width="1.2">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-        </svg>
-        <p>Upload <strong>wwu_uber_backtest.png</strong> to your GitHub repo,<br>
-        then replace this block with an &lt;img&gt; tag.</p>
-      </div>
+      <img src="wwu_uber_backtest.png" alt="Backtest chart" style="width:100%;display:block;">
     </div>
     <div class="chart-caption">
       The model tracked the overall upward trend accurately across most of the test window, 
