@@ -1,5 +1,6 @@
 # mis432-uber-forecasting
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -450,7 +451,19 @@ footer a:hover{text-decoration:underline}
         wwu_uber_backtest.png
       </span>
     </div>
-    <div class="chart-body">
+    <div class="chart-body" id="chartBody">
+      <!-- ── CHART IMAGE ─────────────────────────────────────────────────
+           OPTION A (easiest — works right in your browser, no code needed):
+             Click the "Upload chart" button below to pick your PNG file.
+             The image loads instantly. Note: this only works locally —
+             for GitHub Pages use Option B.
+
+           OPTION B (for GitHub Pages publishing):
+             1. Put wwu_uber_backtest.png in the same folder as index.html
+             2. Delete the entire <div id="chartUploader"> block below
+             3. Paste this one line in its place:
+                <img src="wwu_uber_backtest.png" alt="Backtest chart" style="width:100%;display:block;">
+      ──────────────────────────────────────────────────────────────── -->
       <img src="wwu_uber_backtest.png" alt="Backtest chart" style="width:100%;display:block;">
     </div>
     <div class="chart-caption">
